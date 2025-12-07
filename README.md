@@ -118,7 +118,7 @@ If you use this code, please cite:
 ```bibtex
 @misc{fp4tta2025,
   title={Test-Time Adaptation with FP4 Quantization},
-  author={Tomer Barak}
+  author={Tomer Barak},
   year={2025},
   url={https://github.com/Tomer-Barak/TTA-FP4}
 }
