@@ -2,7 +2,6 @@
 
 **Date:** December 7, 2025  
 **Model:** facebook/opt-125m  
-**Device:** CPU
 
 ---
 
