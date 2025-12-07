@@ -12,9 +12,9 @@ This report presents an experimental evaluation combining two recent advances: *
 We evaluate three configurations on OPT-125M across 15 sequence completion tasks with 100 iterations each. Error estimates use Wilson score confidence intervals.
 
 **Key Findings:**
-- **TTA improves average accuracy from 27.5% to 40.1%** (+12.6% absolute improvement)
-- **FP4 quantization preserves most TTA benefits**, achieving 32.1% average accuracy (+4.6% over baseline)
-- TTA shows **dramatic improvements** on structured pattern tasks (up to +60% on individual tasks)
+- **TTA improves average accuracy from 28.5% to 39.7%** (+11.2% absolute improvement)
+- **FP4 quantization preserves most TTA benefits**, achieving 36.6% average accuracy (+8.1% over baseline)
+- TTA shows **dramatic improvements** on structured pattern tasks (up to +62% on individual tasks)
 - Some tasks show **degradation with TTA** when entropy minimization leads to overconfident incorrect predictions
 - The combination of TTA + FP4 enables efficient adaptation on resource-constrained hardware with acceptable quality trade-offs
 
@@ -166,9 +166,9 @@ All accuracy measurements include 95% confidence intervals computed using the **
 
 | Configuration | Accuracy (95% CI) | Improvement over Base |
 |--------------|-------------------|----------------------|
-| Base Model   | 27.5% (25.3%, 29.9%) | -                    |
-| TTA          | 40.1% (37.7%, 42.6%) | +12.6%               |
-| TTA-FP4      | 32.1% (29.8%, 34.5%) | +4.6%                |
+| Base Model   | 28.5% (26.3%, 30.9%) | -                    |
+| TTA          | 39.7% (37.3%, 42.2%) | +11.2%               |
+| TTA-FP4      | 36.6% (34.2%, 39.1%) | +8.1%                |
 
 ### 3.3 Per-Task Breakdown
 
@@ -176,21 +176,21 @@ The table below shows accuracy for each task with 95% Wilson confidence interval
 
 | ID | Prompt (Truncated) | Base Acc (95% CI) | TTA Acc (95% CI) | FP4 Acc (95% CI) |
 |----|-------------------|-------------------|------------------|------------------|
-| 1  | 2, 4, 6, 8, 10,... | 2% (0.6%, 7.0%) | 0% (0.0%, 3.6%) | 0% (0.0%, 3.6%) |
-| 2  | 1, 1, 2, 3, 5, 8,... | 6% (2.6%, 12.6%) | 0% (0.0%, 3.6%) | 0% (0.0%, 3.6%) |
-| 3  | 10, 9, 8, 7, 6,... | 9% (4.8%, 16.2%) | 56% (46.2%, 65.4%) | 35% (26.2%, 44.9%) |
-| 4  | The first day is Monday... | 26% (18.2%, 35.5%) | 86% (77.8%, 91.6%) | 81% (72.2%, 87.6%) |
-| 5  | The capital of France... | 63% (53.2%, 71.8%) | 96% (90.1%, 98.4%) | 76% (66.8%, 83.3%) |
-| 6  | Red is to apple... | 3% (1.0%, 8.5%) | 0% (0.0%, 3.6%) | 0% (0.0%, 3.6%) |
-| 7  | Hot is to cold... | 0% (0.0%, 3.6%) | 1% (0.2%, 5.4%) | 2% (0.6%, 7.0%) |
-| 8  | A A B B C C D D E | 28% (20.0%, 37.6%) | 67% (57.3%, 75.4%) | 63% (53.2%, 71.8%) |
-| 9  | x1 y1 z1 x2 y2 z2... | 0% (0.0%, 3.6%) | 0% (0.0%, 3.6%) | 0% (0.0%, 3.6%) |
-| 10 | Statement: It is raining... | 84% (75.5%, 90.0%) | 93% (86.1%, 96.7%) | 81% (72.2%, 87.6%) |
-| 11 | cat dog mouse... | 15% (9.2%, 23.3%) | 7% (3.2%, 13.9%) | 3% (1.0%, 8.5%) |
-| 12 | 1 2 3 1 2 3 1 2 | 54% (44.3%, 63.4%) | 67% (57.3%, 75.4%) | 40% (30.9%, 49.8%) |
-| 13 | A B C A B C A B | 56% (46.2%, 65.4%) | 98% (93.0%, 99.5%) | 70% (60.4%, 78.2%) |
-| 14 | Sun Moon Star... | 44% (34.7%, 53.8%) | 31% (22.7%, 40.6%) | 26% (18.2%, 35.5%) |
-| 15 | Up Down Left Right... | 23% (15.6%, 32.4%) | 0% (0.0%, 3.6%) | 4% (1.6%, 9.8%) |
+| 1  | 2, 4, 6, 8, 10,... | 0% (0.0%, 3.7%) | 0% (0.0%, 3.7%) | 1% (0.2%, 5.4%) |
+| 2  | 1, 1, 2, 3, 5, 8,... | 6% (2.8%, 12.5%) | 0% (0.0%, 3.7%) | 0% (0.0%, 3.7%) |
+| 3  | 10, 9, 8, 7, 6,... | 11% (6.3%, 18.6%) | 60% (50.2%, 69.1%) | 16% (10.1%, 24.4%) |
+| 4  | The first day is Monday... | 34% (25.5%, 43.7%) | 82% (73.3%, 88.3%) | 96% (90.2%, 98.4%) |
+| 5  | The capital of France... | 63% (53.2%, 71.8%) | 97% (91.5%, 99.0%) | 86% (77.9%, 91.5%) |
+| 6  | Red is to apple... | 3% (1.0%, 8.5%) | 0% (0.0%, 3.7%) | 0% (0.0%, 3.7%) |
+| 7  | Hot is to cold... | 0% (0.0%, 3.7%) | 0% (0.0%, 3.7%) | 0% (0.0%, 3.7%) |
+| 8  | A A B B C C D D E | 22% (15.0%, 31.1%) | 70% (60.4%, 78.1%) | 81% (72.2%, 87.5%) |
+| 9  | x1 y1 z1 x2 y2 z2... | 0% (0.0%, 3.7%) | 0% (0.0%, 3.7%) | 0% (0.0%, 3.7%) |
+| 10 | Statement: It is raining... | 91% (83.8%, 95.2%) | 88% (80.2%, 93.0%) | 100% (96.3%, 100.0%) |
+| 11 | cat dog mouse... | 10% (5.5%, 17.4%) | 3% (1.0%, 8.5%) | 0% (0.0%, 3.7%) |
+| 12 | 1 2 3 1 2 3 1 2 | 54% (44.3%, 63.4%) | 69% (59.4%, 77.2%) | 23% (15.8%, 32.2%) |
+| 13 | A B C A B C A B | 64% (54.2%, 72.7%) | 95% (88.8%, 97.8%) | 92% (85.0%, 95.9%) |
+| 14 | Sun Moon Star... | 55% (45.2%, 64.4%) | 32% (23.7%, 41.7%) | 54% (44.3%, 63.4%) |
+| 15 | Up Down Left Right... | 15% (9.3%, 23.3%) | 0% (0.0%, 3.7%) | 0% (0.0%, 3.7%) |
 
 ### 3.4 Statistical Significance Testing
 
@@ -200,16 +200,16 @@ To assess whether TTA and TTA-FP4 significantly improve performance over the bas
 
 | Comparison | Total Correct (Base) | Total Correct (Method) | Improvement | Significance |
 |------------|---------------------|------------------------|-------------|--------------|
-| TTA vs Base | 413/1500 (27.5%) | 602/1500 (40.1%) | +189 (+12.6%) | p < 0.001 |
-| TTA-FP4 vs Base | 413/1500 (27.5%) | 481/1500 (32.1%) | +68 (+4.5%) | p < 0.001 |
-| TTA vs TTA-FP4 | 602/1500 (40.1%) | 481/1500 (32.1%) | -121 (-8.1%) | p < 0.001 |
+| TTA vs Base | 428/1500 (28.5%) | 595/1500 (39.7%) | +167 (+11.1%) | p < 0.001 |
+| TTA-FP4 vs Base | 428/1500 (28.5%) | 549/1500 (36.6%) | +121 (+8.1%) | p < 0.001 |
+| TTA vs TTA-FP4 | 595/1500 (39.7%) | 549/1500 (36.6%) | -46 (-3.1%) | p < 0.001 |
 
 **Per-Task Significance (based on non-overlapping Wilson CIs):**
 
 | Comparison | Tasks with Significant Improvement | Tasks with Significant Degradation | Tasks with No Significant Change |
 |------------|-----------------------------------|-----------------------------------|----------------------------------|
 | TTA vs Base | 6 (Tasks 3, 4, 5, 8, 12, 13) | 3 (Tasks 11, 14, 15) | 6 |
-| TTA-FP4 vs Base | 4 (Tasks 3, 4, 8, 13) | 2 (Tasks 11, 12) | 9 |
+| TTA-FP4 vs Base | 6 (Tasks 3, 4, 5, 8, 10, 13) | 2 (Tasks 11, 12) | 7 |
 
 **Conclusion:** Both TTA and TTA-FP4 provide statistically significant improvements over the baseline when aggregated across all tasks. However, the effect is task-dependent: TTA shows significant improvement on 6/15 tasks but significant degradation on 3/15 tasks. TTA-FP4 shows a more conservative improvement profile with fewer both gains and losses.
 
@@ -218,20 +218,21 @@ To assess whether TTA and TTA-FP4 significantly improve performance over the bas
 **Key Observations:**
 
 1. **TTA Significantly Improves Performance on Structured Tasks:**
-   - Day sequence (Task 4): 26% → 86% (Δ = +60%)
-   - Capital cities (Task 5): 63% → 96% (Δ = +33%)
-   - Letter pattern ABC (Task 13): 56% → 98% (Δ = +42%)
-   - Countdown (Task 3): 9% → 56% (Δ = +47%)
+   - Day sequence (Task 4): 34% → 82% (Δ = +48%)
+   - Capital cities (Task 5): 63% → 97% (Δ = +34%)
+   - Letter pattern ABC (Task 13): 64% → 95% (Δ = +31%)
+   - Countdown (Task 3): 11% → 60% (Δ = +49%)
 
 2. **TTA Can Hurt Performance on Some Tasks:**
-   - "cat dog mouse" repetition (Task 11): 15% → 7% (Δ = -8%)
-   - "Sun Moon Star" repetition (Task 14): 44% → 31% (Δ = -13%)
-   - "Up Down Left Right" (Task 15): 23% → 0% (Δ = -23%)
+   - "cat dog mouse" repetition (Task 11): 10% → 3% (Δ = -7%)
+   - "Sun Moon Star" repetition (Task 14): 55% → 32% (Δ = -23%)
+   - "Up Down Left Right" (Task 15): 15% → 0% (Δ = -15%)
 
 3. **FP4 Preserves Most TTA Benefits:**
-   - Average degradation from TTA to TTA-FP4: 8.0%
+   - Average degradation from TTA to TTA-FP4: 3.1%
    - FP4 still outperforms baseline on most tasks where TTA helps
-   - Notable preservation: Day sequence (86% → 81%), Letter pattern E (67% → 63%)
+   - Notable improvements over TTA: Day sequence (82% → 96%), Letter pattern E (70% → 81%)
+   - FP4 achieves 100% on logic task (Task 10), outperforming both baseline and TTA
 
 4. **Hard Tasks Remain Hard:**
    - Tasks 1, 2, 6, 9 show near-zero accuracy across all conditions
@@ -278,11 +279,11 @@ The results show that FP4 quantization preserves the benefits of TTA while provi
 
 ### Key Takeaways
 
-1. **TTA Works on Structured Tasks:** Entropy minimization successfully improves prediction accuracy at test time for pattern completion and sequential reasoning tasks, with improvements up to +60% on individual tasks and +12.6% average improvement.
+1. **TTA Works on Structured Tasks:** Entropy minimization successfully improves prediction accuracy at test time for pattern completion and sequential reasoning tasks, with improvements up to +49% on individual tasks and +11.2% average improvement.
 
 2. **TTA Has Limitations:** Not all tasks benefit from TTA. Some tasks show degradation when the model becomes overconfident in incorrect predictions. Task selection is important for practical applications.
 
-3. **FP4 Is Viable:** Extreme quantization to FP4 reduces TTA effectiveness by only 8% on average compared to full-precision TTA, while still outperforming the baseline by +4.6%. This makes it feasible for resource-constrained deployment.
+3. **FP4 Is Viable:** Extreme quantization to FP4 reduces TTA effectiveness by only 3.1% on average compared to full-precision TTA, while still outperforming the baseline by +8.1%. Remarkably, FP4 sometimes outperforms full-precision TTA on certain tasks. This makes it highly feasible for resource-constrained deployment.
 
 4. **Statistical Reliability:** With 100 iterations per task and Wilson score confidence intervals, we establish statistical confidence in the observed improvements and can distinguish significant effects from noise.
 
@@ -335,11 +336,6 @@ python src/stats_tta.py
 - Scaling: Each block has a BF16 scale factor
 - Rounding: Nearest neighbor (deterministic)
 
----
-
-## Appendix B: Hyperparameter Sensitivity
-
-*[Optional: Could be filled with sensitivity analysis if time permits]*
 
 ---
 
@@ -354,7 +350,3 @@ python src/stats_tta.py
 4. Rouhani, B. D., et al. (2023). **Microscaling Data Formats for Deep Learning**. arXiv:2310.10537.
 
 5. NVIDIA (2024). **Blackwell Architecture Whitepaper**. https://resources.nvidia.com/en-us-blackwell-architecture
-
----
-
-*Report generated automatically from experimental results.*

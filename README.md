@@ -20,9 +20,9 @@ We evaluate three configurations on 15 sequence completion tasks:
 **Key Results:**
 | Configuration | Accuracy (95% CI) |
 |--------------|-------------------|
-| Base Model   | 27.5% (25.3%, 29.9%) |
-| TTA          | 40.1% (37.7%, 42.6%) |
-| TTA-FP4      | 32.1% (29.8%, 34.5%) |
+| Base Model   | 28.5% (26.3%, 30.9%) |
+| TTA          | 39.7% (37.3%, 42.2%) |
+| TTA-FP4      | 36.6% (34.2%, 39.1%) |
 
 See [REPORT.md](REPORT.md) for full experimental details and analysis.
 
@@ -47,7 +47,7 @@ See [REPORT.md](REPORT.md) for full experimental details and analysis.
 
 ```bash
 # Clone the repository
-git clone <repo-url>
+git clone https://github.com/Tomer-Barak/TTA-FP4
 cd fp4-tta
 
 # Create virtual environment (recommended)

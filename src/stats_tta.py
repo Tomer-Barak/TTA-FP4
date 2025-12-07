@@ -44,39 +44,92 @@ CANDIDATES = [
 # --- FP4 Classes ---
 
 class FP4LinearFunction(torch.autograd.Function):
+    """FP4 linear layer mimicking the FP4-all-the-way NVFP4 scheme.
+
+    - Forward GEMM: Q_RtN(W) Q_RtN(a)
+    - Backward GEMM (grad_input): Q_RtN(W) Q_SR(δ)
+    - Update GEMM (grad_weight): Q_SR(δ) Q_SR(a)
+
+    Weights, activations, and neural gradients are all quantized with
+    NVFP4-style settings (E2M1 data, E4M3 scales, block size 16).
+    """
+
     @staticmethod
     def forward(ctx, input, weight, bias, meta):
-        # Quantize weight
-        weight_q = fake_quant_fp4(
-            weight, 
-            meta['block_size'], 
-            meta['scale_format'], 
-            meta['stochastic_rounding']
+        # NVFP4 configuration: block size 16, E4M3 scales, RtN in forward
+        block_size = 16
+        scale_format = "e4m3"
+
+        input_q = fake_quant_fp4(
+            input,
+            stochastic_rounding=False,
+            block_size=block_size,
+            scale_format=scale_format,
         )
-        
-        # Save for backward
-        ctx.save_for_backward(input, weight_q, bias)
-        
-        # Standard linear with quantized weights
-        output = torch.nn.functional.linear(input, weight_q, bias)
+
+        weight_q = fake_quant_fp4(
+            weight,
+            stochastic_rounding=False,
+            block_size=block_size,
+            scale_format=scale_format,
+        )
+
+        # Save full-precision tensors for backward (as in the reference code)
+        ctx.save_for_backward(input, weight, bias)
+        ctx.block_size = block_size
+        ctx.scale_format = scale_format
+
+        output = torch.nn.functional.linear(input_q, weight_q, bias)
         return output
 
     @staticmethod
     def backward(ctx, grad_output):
-        input, weight_q, bias = ctx.saved_tensors
-        
+        input, weight, bias = ctx.saved_tensors
+        block_size = ctx.block_size
+        scale_format = ctx.scale_format
+
         grad_input = grad_weight = grad_bias = None
-        
+
+        # Backward GEMM: grad_input = Q_RtN(W) Q_SR(δ)
         if ctx.needs_input_grad[0]:
-            grad_input = grad_output.matmul(weight_q)
-        
+            grad_output_q = fake_quant_fp4(
+                grad_output,
+                stochastic_rounding=True,
+                block_size=block_size,
+                scale_format=scale_format,
+            )
+
+            weight_q = fake_quant_fp4(
+                weight,
+                stochastic_rounding=False,
+                block_size=block_size,
+                scale_format=scale_format,
+            )
+
+            grad_input = grad_output_q.matmul(weight_q)
+
+        # Update GEMM: grad_weight = Q_SR(δ)^T Q_SR(a)
         if ctx.needs_input_grad[1]:
-            # STE: Use gradients w.r.t quantized weights as gradients w.r.t full precision weights
-            grad_weight = grad_output.transpose(-2, -1).matmul(input)
-            
+            grad_output_q_t = fake_quant_fp4(
+                grad_output.transpose(-2, -1),
+                stochastic_rounding=True,
+                block_size=block_size,
+                scale_format=scale_format,
+            )
+
+            input_q = fake_quant_fp4(
+                input,
+                stochastic_rounding=True,
+                block_size=block_size,
+                scale_format=scale_format,
+            )
+
+            grad_weight = grad_output_q_t.matmul(input_q)
+
         if bias is not None and ctx.needs_input_grad[2]:
+            # Bias is kept in higher precision; we use the full-precision gradient.
             grad_bias = grad_output.sum(0)
-            
+
         return grad_input, grad_weight, grad_bias, None
 
 class FP4Linear(nn.Linear):
